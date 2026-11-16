@@ -20,7 +20,7 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 
 - **Qué hizo:** tablas duenos y mascotas con sus restricciones; datos de ejemplo realistas con RUT válidos.
 - **Archivos:** `backEnd/sql/01_crear_tablas.sql` (duenos, mascotas), `backEnd/sql/02_datos_ejemplo.sql`.
-- **Problema y solución:** _(completar)_
+- **Problema y solución:** Se soluciono el problema para llevar un registro de los dueños y las mascotas
 - **Próxima semana:** capas completas de dueños y mascotas.
 - **Uso de IA:** _(qué se le preguntó a la IA y qué se cambió del resultado)_
 
@@ -52,9 +52,21 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
       DETALLE_ATENCION   8 filas
     ```
 
-    Pablo Allendes: _(pegar)_
+    Pablo Allendes: _(16-11-2026)_
 
-    Jhon Quirino: _(pegar)_
+    ```
+    Conexión OK
+      Usuario (esquema): PABLO_ALLENDES07_SCHEMA_38WPO
+      Base de datos:     FREESQLPRD_SCHEMA_PDB01
+      Hora UTC Oracle:   2026-11-16 12:32:43
+      DUENOS             6 filas
+      MASCOTAS           6 filas
+      SERVICIOS          7 filas
+      ATENCIONES         5 filas
+      DETALLE_ATENCION   8 filas
+    ```
+
+    Jhon Quirino: _(16-11-2026)_
 
     ```
     Conexión OK
