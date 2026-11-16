@@ -28,6 +28,14 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 
 - **Qué hizo:** tabla servicios; proyecto Django, entorno virtual, `.env`, `settings.py` con dos bases (SQLite + Oracle), router y comando `probar_conexion` (paso 11). Repositorio con `.gitignore` y `.env.example`.
 - **Archivos:** `backEnd/veterinaria_project/settings.py`, `db_router.py`, `veterinaria/management/commands/probar_conexion.py`, `.gitignore`, `backEnd/.env.example`.
+- **Problema y solución:**
+    1. En mi esquema solo existía la tabla `SERVICIOS`, así que `probar_conexion` iba a marcar las otras cuatro como `NO EXISTE`. Se ejecutaron completos `01_crear_tablas.sql` y `02_datos_ejemplo.sql` en mi esquema, como script y no sentencia por sentencia. Quedaron las 5 tablas con 6, 6, 7, 5 y 8 filas.
+    2. `probar_conexion` fallaba con `RuntimeError: Falta DJANGO_SECRET_KEY en el archivo .env`. El `.env` existía y estaba en `backEnd/`, pero usaba otros nombres de variables (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS` y un único `ORACLE_DSN`) que `settings.py` no lee. Se renombraron a `DJANGO_SECRET_KEY`, `DJANGO_DEBUG` y `DJANGO_ALLOWED_HOSTS`, y el DSN se separó en `ORACLE_HOST`, `ORACLE_PORT` y `ORACLE_SERVICE`, siguiendo `.env.example`. Se verificó que `.env` esté en `.gitignore`.
+    3. `git push` fue rechazado porque mi rama estaba un commit atrasada respecto de `origin/main` (un compañero había subido cambios). Se hizo `git pull` antes de volver a subir, para no pisar su trabajo en `docs/bitacora.md`.
+- **Próxima semana:** capas completas de servicios (entidad y puerto en `domain/`, casos de uso en `application/`, modelo ORM y repositorio en `infrastructure/`).
+- **Uso de IA:** Se usó Claude (chat) para entender los errores de `probar_conexion` y de git, y para ordenar los pasos de entrega. La IA detectó que los nombres de las variables del `.env` no coincidían con los de `.env.example`; la corrección se comprobó ejecutando `probar_conexion` hasta obtener `Conexión OK` y las 5 tablas con datos.
+
+
 - **Evidencia de conexión:** salida de `python manage.py probar_conexion` de cada integrante.
 
     Javier Andrade (15-11-2026):
@@ -47,6 +55,19 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
     Pablo Allendes: _(pegar)_
 
     Jhon Quirino: _(pegar)_
+
+    ```
+    Conexión OK
+      Usuario (esquema): JHONQUIRINO14_SCHEMA_II2RP
+      Base de datos:     FREESQLPRD_SCHEMA_PDB01
+      Hora UTC Oracle:   2026-11-16 02:20:12
+      DUENOS             6 filas
+      MASCOTAS           6 filas
+      SERVICIOS          7 filas
+      ATENCIONES         5 filas
+      DETALLE_ATENCION   8 filas
+    ```
+     Capturas: `docs/capturas/evidencia_conexion_jhon.png` (salida de `probar_conexion`), `docs/capturas/evidencia_tablas_jhon.png` (`user_tables` con las 5 tablas) y `docs/capturas/evidencia_filas_jhon.png` (filas por tabla).
 
 - **Problema y solución:** _(completar)_
 - **Próxima semana:** capas completas de servicios.
