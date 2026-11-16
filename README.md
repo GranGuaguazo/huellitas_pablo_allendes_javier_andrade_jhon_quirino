@@ -6,6 +6,14 @@ La clínica registra a los dueños, sus mascotas y las atenciones, en las que se
 
 > **Estado del repositorio: Semana 1 · Diseño, base de datos y conexión**
 
+### Qué se hizo en la Semana 1
+
+- **Modelo de datos y diccionario** de las 5 tablas en `docs/` (`modelo_datos.md`, `modelo_datos.png`, `diccionario_datos.md`).
+- **Scripts Oracle:** `backEnd/sql/01_crear_tablas.sql` crea las tablas con 4 FK, 4 UNIQUE, 10 CHECK, índices por FK, clave compuesta y columna virtual en `detalle_atencion`. `02_datos_ejemplo.sql` carga datos realistas.
+- **Proyecto Django** `veterinaria_project` con la app `veterinaria`, las carpetas de las capas hexagonales, `.env` y dos bases (SQLite y Oracle) con router.
+- **Prueba de conexión** (`python manage.py probar_conexion`) exitosa contra FreeSQL. Evidencia en `docs/bitacora.md` y `docs/capturas/`.
+- **Reparto de entidades** en `docs/reparto_tareas.md`.
+
 
 ## Estructura del repositorio
 
