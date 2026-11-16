@@ -63,9 +63,9 @@ WSGI_APPLICATION = "veterinaria_project.wsgi.application"
 #   default -> SQLite (usuarios, permisos, tokens, admin, sesiones)
 #   negocio -> Oracle FreeSQL (tablas de la clínica)
 # ---------------------------------------------------------------------
-# FreeSQL exige TLS en el puerto 2484 (protocolo tcps); sin TLS el servidor
-# cierra la conexión (DPY-4011). Si no se indica ORACLE_PROTOCOL, se usa tcps
-# para el puerto 2484 y tcp para cualquier otro.
+# FreeSQL acepta tcp en el puerto 1521 (el recomendado: el 2484 con TLS puede
+# estar bloqueado por la red y da timeout DPY-6005). Si no se indica
+# ORACLE_PROTOCOL, se usa tcps para el puerto 2484 y tcp para cualquier otro.
 ORACLE_PORT = os.getenv("ORACLE_PORT", "1521").strip()
 ORACLE_PROTOCOL = os.getenv("ORACLE_PROTOCOL", "").strip().lower()
 if ORACLE_PROTOCOL == "":
