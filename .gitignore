@@ -1,0 +1,23 @@
+# Credenciales: NUNCA se suben
+.env
+*.env
+!.env.example
+
+# Python / Django
+__pycache__/
+*.pyc
+entorno/
+venv/
+.venv/
+db.sqlite3
+*.log
+
+# Frontend
+node_modules/
+dist/
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

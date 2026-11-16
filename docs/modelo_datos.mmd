@@ -1,0 +1,48 @@
+erDiagram
+    DUENOS ||--o{ MASCOTAS : "tiene"
+    MASCOTAS ||--o{ ATENCIONES : "recibe"
+    ATENCIONES ||--|{ DETALLE_ATENCION : "incluye"
+    SERVICIOS ||--o{ DETALLE_ATENCION : "se aplica en"
+
+    DUENOS {
+        NUMBER id PK "IDENTITY"
+        VARCHAR2 rut UK "uq_duenos_rut"
+        VARCHAR2 nombre
+        VARCHAR2 telefono
+        VARCHAR2 email UK "uq_duenos_email"
+        VARCHAR2 comuna
+        TIMESTAMP fecha_registro "UTC"
+    }
+    MASCOTAS {
+        NUMBER id PK "IDENTITY"
+        NUMBER dueno_id FK "fk_mascotas_dueno"
+        VARCHAR2 nombre
+        VARCHAR2 especie "CHECK"
+        VARCHAR2 raza "nullable"
+        VARCHAR2 sexo "CHECK M/H"
+        DATE fecha_nacimiento
+    }
+    SERVICIOS {
+        NUMBER id PK "IDENTITY"
+        VARCHAR2 codigo UK "uq_servicios_codigo"
+        VARCHAR2 nombre UK "uq_servicios_nombre"
+        CLOB descripcion
+        NUMBER precio "CHECK >= 0"
+        NUMBER activo "CHECK 0/1"
+    }
+    ATENCIONES {
+        NUMBER id PK "IDENTITY"
+        NUMBER mascota_id FK "fk_atenciones_mascota"
+        TIMESTAMP fecha "UTC"
+        VARCHAR2 motivo
+        NUMBER total "CHECK >= 0"
+        VARCHAR2 estado "CHECK estados"
+        TIMESTAMP fecha_creacion "UTC"
+    }
+    DETALLE_ATENCION {
+        NUMBER atencion_id PK,FK "fk_detalle_atencion"
+        NUMBER servicio_id PK,FK "fk_detalle_servicio"
+        NUMBER cantidad "CHECK > 0"
+        NUMBER precio_unitario "CHECK >= 0"
+        NUMBER subtotal "VIRTUAL"
+    }
