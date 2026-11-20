@@ -111,3 +111,52 @@ class AtencionNoEliminable(ReglaIncumplida):
 # ---------------------------------------------------------------------
 # Servicios (Jhon)
 # ---------------------------------------------------------------------
+
+class ServicioNoEncontrado(NoEncontrado):
+    def __init__(self, servicio_id: int):
+        super().__init__(f"No existe el servicio {servicio_id}.")
+
+
+class CodigoServicioDuplicado(Duplicado):
+    """Ya existe otro servicio con ese código (uq_servicios_codigo)."""
+
+    def __init__(self, codigo: str):
+        super().__init__(
+            f"Ya existe un servicio con el código '{codigo}'.", campo="codigo"
+        )
+
+
+class NombreServicioDuplicado(Duplicado):
+    """Ya existe otro servicio con ese nombre (uq_servicios_nombre)."""
+
+    def __init__(self, nombre: str):
+        super().__init__(
+            f"Ya existe un servicio con el nombre '{nombre}'.", campo="nombre"
+        )
+
+
+class ServicioEnUso(EnUso):
+    """Borrado protegido: el servicio aparece en el detalle de alguna atención."""
+
+    def __init__(self, servicio_id: int):
+        super().__init__(
+            f"No se puede eliminar el servicio {servicio_id}: se usa en atenciones. "
+            "Desactívelo en su lugar."
+        )
+
+
+class CodigoServicioInvalido(ReglaIncumplida):
+    """El código no cumple el formato AAA-00."""
+
+    def __init__(self, codigo: str):
+        super().__init__(
+            f"El código '{codigo}' no es válido; use el formato AAA-00 (por ejemplo VAC-01).",
+            campo="codigo",
+        )
+
+
+class PrecioServicioInvalido(ReglaIncumplida):
+    """El precio es negativo (ck_servicios_precio)."""
+
+    def __init__(self, precio):
+        super().__init__(f"El precio no puede ser negativo ({precio}).", campo="precio")

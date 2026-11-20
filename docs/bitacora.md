@@ -100,3 +100,19 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 - **Para mis compañeros:** `AtencionRepository.existe_con_mascota()` (R3, borrado protegido de mascotas) y `DetalleAtencionRepository.existe_con_servicio()` (borrado protegido de servicios) ya están listos. En `application/exceptions.py` y `infrastructure/di.py` hay una sección para cada uno.
 - **Próxima semana:** casos de uso `CrearAtencion` (con R1 y R2: solo servicios activos y total recalculado desde el detalle), `CambiarEstadoAtencion` (solo transiciones permitidas) y `EliminarAtencion` (solo `agendada`); cambiar `mascota_id` y `servicio_id` a `ForeignKey`.
 - **Uso de IA:** se usó Claude Code para generar las capas de atenciones a partir del diccionario de datos y para probarlas contra FreeSQL. _(completar: qué se revisó o cambió del resultado)_
+
+
+### Jhon Quirino
+
+- **Qué hizo:** capas completas de la entidad `servicios`: entidad pura, puerto (ABC) con consultas por código y por nombre para el control de duplicados, excepciones de negocio, casos de uso (listar, obtener, crear, actualizar y eliminar) con validación del código `AAA-00`, precio ≥ 0, duplicados y borrado protegido, modelo `managed = False`, repositorio Oracle y contenedor de dependencias. Pruebas de los casos de uso con repositorios falsos en memoria y comando `probar_servicios` contra Oracle.
+- **Archivos:** `veterinaria/domain/entities/servicio.py`, `domain/ports/servicio_repository.py`, `application/exceptions.py` (sección Servicios), `application/use_cases/servicios.py`, `infrastructure/models/servicio.py`, `infrastructure/models/__init__.py`, `infrastructure/repositories/servicio_repository.py`, `infrastructure/di.py`, `management/commands/probar_servicios.py`, `tests/__init__.py`, `tests/test_servicios.py`.
+- **Problema y solución:**
+    1. Al crear `servicio.py` y `servicio_repository.py` en el lugar equivocado (carpetas `docs` y `domain`, y con el nombre en plural), Python respondía `ModuleNotFoundError`. Se movieron a `domain/entities` y `domain/ports` con el nombre exacto y se verificó con un `python -c` de importación.
+    2. Al probar el repositorio con el archivo todavía vacío, Python respondía `ImportError: cannot import name 'OracleServicioRepository'`. Se pegó el código, se guardó y la comprobación pasó.
+- **Decisiones de diseño:**
+    1. `ActualizarServicio` solo trata el código o el nombre como duplicado si pertenecen a **otro** servicio; así se puede guardar un servicio con su propio código.
+    2. `EliminarServicio` recibe también el repositorio de detalle de atenciones y usa `existe_con_servicio()` (de Javier): un servicio usado en una atención no se elimina, se desactiva (`activo = 0`), que es la base de la regla R2.
+- **Prueba:** `python -m unittest veterinaria.tests.test_servicios -v` (14 pruebas, sin Django ni Oracle) y `python manage.py probar_servicios` contra mi esquema de FreeSQL: crear, obtener, listar con filtros, actualizar, duplicados, código inválido, precio negativo, no encontrado, borrado protegido (CON-01 está en atenciones) y eliminar uno libre; todo dentro de una transacción que se revirtió. Capturas: `docs/capturas/evidencia_servicios_oracle_jhon.png` y `docs/capturas/evidencia_pruebas_servicios_jhon.png`.
+- **Para mis compañeros:** `ServicioModel` ya existe, así que Javier puede cambiar `servicio_id` a `ForeignKey(db_column="servicio_id")`, y `ObtenerServicio` sirve para validar en R2 que el servicio esté activo.
+- **Próxima semana:** autenticación de la API (login, logout, `/api/auth/me/` con cookie HttpOnly y CSRF).
+- **Uso de IA:** se usó Claude (chat) para generar el código de servicios capa por capa y para diagnosticar los errores de ruta. Cada capa se comprobó con comandos en la terminal, con las 14 pruebas unitarias y con la prueba real contra Oracle. _(completar: qué revisaste o cambiaste del código generado)_
