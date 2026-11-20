@@ -84,3 +84,19 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 - **Problema y solución:** _(completar)_
 - **Próxima semana:** capas completas de servicios.
 - **Uso de IA:** _(qué se le preguntó a la IA y qué se cambió del resultado)_
+
+## Semana 2 · Capas hexagonales de las entidades maestras
+
+### Javier Andrade
+
+- **Qué hizo:** capas de dominio e infraestructura de la entidad principal `atenciones` y de su detalle `detalle_atencion`: entidades puras con los estados y transiciones permitidas, puertos (ABC) con las operaciones del negocio y las consultas propias (R1 y borrados protegidos), excepciones de negocio base del proyecto y las de atenciones, modelos `managed = False` (clave compuesta y columna virtual), repositorios Oracle con la creación de cabecera + detalle en una sola transacción, contenedor de dependencias `di.py` y casos de uso de consulta (`ListarAtenciones`, `ObtenerAtencion`).
+- **Archivos:** `veterinaria/domain/entities/atencion.py`, `domain/entities/detalle_atencion.py`, `domain/ports/atencion_repository.py`, `domain/ports/detalle_atencion_repository.py`, `application/exceptions.py`, `application/use_cases/atenciones.py`, `infrastructure/models/atencion.py`, `infrastructure/models/detalle_atencion.py`, `infrastructure/models/__init__.py`, `infrastructure/repositories/atencion_repository.py`, `infrastructure/repositories/detalle_atencion_repository.py`, `infrastructure/di.py`, `veterinaria/models.py`.
+- **Problema y solución:**
+    1. `subtotal` es una columna `VIRTUAL` de Oracle: si Django la incluye en el `INSERT`, Oracle responde `ORA-54013`. Se declaró como `GeneratedField(db_persist=False)`, que Django nunca escribe y lee después de insertar.
+    2. La clave primaria de `detalle_atencion` es compuesta. Se usó `CompositePrimaryKey("atencion_id", "servicio_id")`, disponible desde Django 5.2.
+    3. R1 habla de «el mismo día», pero Oracle guarda las fechas en UTC: una atención a las 22:00 de Chile queda guardada al día siguiente. `existe_agendada_mismo_dia` arma el rango 00:00–24:00 en hora de Chile y Django lo convierte a UTC al consultar.
+    4. Los modelos de `mascotas` y `servicios` (Pablo y Jhon) todavía no existen, así que `mascota_id` y `servicio_id` se declararon como enteros. Cuando se suban esos modelos se cambian a `ForeignKey(db_column=...)`; el atributo `mascota_id` / `servicio_id` se mantiene y el repositorio no cambia.
+- **Prueba:** desde `manage.py shell` contra mi esquema: listar (con filtros por estado y texto), obtener (y el error `AtencionNoEncontrada` con un id inexistente), crear una atención con dos líneas, cambiar su estado y eliminarla, todo dentro de una transacción que se revirtió al final para no dejar datos de prueba. El `subtotal` lo devolvió Oracle y coincidió con `calcular_total()`.
+- **Para mis compañeros:** `AtencionRepository.existe_con_mascota()` (R3, borrado protegido de mascotas) y `DetalleAtencionRepository.existe_con_servicio()` (borrado protegido de servicios) ya están listos. En `application/exceptions.py` y `infrastructure/di.py` hay una sección para cada uno.
+- **Próxima semana:** casos de uso `CrearAtencion` (con R1 y R2: solo servicios activos y total recalculado desde el detalle), `CambiarEstadoAtencion` (solo transiciones permitidas) y `EliminarAtencion` (solo `agendada`); cambiar `mascota_id` y `servicio_id` a `ForeignKey`.
+- **Uso de IA:** se usó Claude Code para generar las capas de atenciones a partir del diccionario de datos y para probarlas contra FreeSQL. _(completar: qué se revisó o cambió del resultado)_

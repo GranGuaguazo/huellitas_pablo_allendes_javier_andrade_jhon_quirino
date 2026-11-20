@@ -4,7 +4,29 @@ Respuestas cortas a las preguntas tipo de cada semana. Las secciones de las sema
 
 ## 1. Arquitectura hexagonal
 
-_(semana 2)_
+**Muestra una importación de tu código que respete la regla de dependencia.**
+
+- `application/use_cases/atenciones.py` importa `from veterinaria.domain.ports.atencion_repository import AtencionRepository`: el caso de uso depende de un **contrato** del dominio, no de Oracle.
+- `infrastructure/repositories/atencion_repository.py` importa el puerto y los modelos de Django, y lo implementa (`OracleAtencionRepository(AtencionRepository)`). Las flechas apuntan hacia el centro: infraestructura → aplicación → dominio. Nunca al revés.
+- `domain/` y `application/` no importan nada de Django. El único lugar donde se elige `OracleAtencionRepository` es `infrastructure/di.py`.
+
+**¿Qué pasaría si el caso de uso importara el modelo de Django?**
+
+- La regla de negocio quedaría amarrada al ORM y a Oracle: para cambiar de base (o probar el caso de uso con un repositorio falso en memoria) habría que tocar la lógica del negocio.
+- El caso de uso recibiría objetos del ORM que pueden hacer consultas escondidas (`m.detalles.all()`), en vez de entidades simples ya cargadas.
+- Se rompe la regla de dependencia: el centro (aplicación) conocería un detalle externo (infraestructura).
+
+**¿Por qué el repositorio convierte modelos en entidades?**
+
+- Para que lo que sale del repositorio sea una `Atencion` de dominio, con sus métodos de negocio (`puede_cambiar_a`, `calcular_total`, `es_eliminable`), sin nada de Django.
+
+**¿Dónde está la transacción de la entidad principal y qué pasa si falla la segunda línea del detalle?**
+
+- En `OracleAtencionRepository.crear()`, con `transaction.atomic(using="negocio")`. Si falla una línea (por ejemplo, un servicio que no existe y viola `fk_detalle_servicio`), se hace `ROLLBACK` de todo: no queda ni la cabecera ni la primera línea.
+
+**¿Cómo se modela la clave compuesta y la columna virtual en Django?**
+
+- `CompositePrimaryKey("atencion_id", "servicio_id")` (Django 5.2) y `subtotal = GeneratedField(..., db_persist=False)`, que Django no incluye en el `INSERT` (Oracle no permite escribir una columna virtual).
 
 ## 2. Base de datos y conexión (semana 1)
 
