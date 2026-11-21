@@ -108,6 +108,102 @@ class AtencionNoEliminable(ReglaIncumplida):
 # ---------------------------------------------------------------------
 
 
+class DuenoNoEncontrado(NoEncontrado):
+    def __init__(self, dueno_id: int):
+        super().__init__(f"No existe el dueño {dueno_id}.")
+
+
+class RutDuplicado(Duplicado):
+    """Ya existe otro dueño con ese RUT (uq_duenos_rut)."""
+
+    def __init__(self, rut: str):
+        super().__init__(f"Ya existe un dueño con el RUT '{rut}'.", campo="rut")
+
+
+class EmailDuplicado(Duplicado):
+    """Ya existe otro dueño con ese email (uq_duenos_email)."""
+
+    def __init__(self, email: str):
+        super().__init__(f"Ya existe un dueño con el email '{email}'.", campo="email")
+
+
+class RutInvalido(ReglaIncumplida):
+    """El RUT no tiene formato válido o su dígito verificador no cuadra."""
+
+    def __init__(self, rut: str):
+        super().__init__(
+            f"El RUT '{rut}' no es válido; use el formato 12.345.678-5.", campo="rut"
+        )
+
+
+class EmailInvalido(ReglaIncumplida):
+    """El email no tiene formato válido (ck_duenos_email exige una @)."""
+
+    def __init__(self, email: str):
+        super().__init__(f"El email '{email}' no es válido.", campo="email")
+
+
+class DuenoEnUso(EnUso):
+    """R3: borrado protegido. El dueño tiene mascotas registradas."""
+
+    def __init__(self, dueno_id: int):
+        super().__init__(
+            f"No se puede eliminar el dueño {dueno_id}: tiene mascotas registradas. "
+            "Elimine o traspase sus mascotas primero."
+        )
+
+
+class MascotaNoEncontrada(NoEncontrado):
+    def __init__(self, mascota_id: int):
+        super().__init__(f"No existe la mascota {mascota_id}.")
+
+
+class MascotaNombreDuplicado(Duplicado):
+    """El dueño ya tiene una mascota con ese nombre (regla del caso de uso)."""
+
+    def __init__(self, nombre: str):
+        super().__init__(
+            f"Este dueño ya tiene una mascota llamada '{nombre}'.", campo="nombre"
+        )
+
+
+class MascotaEnUso(EnUso):
+    """R3: borrado protegido. La mascota tiene atenciones registradas."""
+
+    def __init__(self, mascota_id: int):
+        super().__init__(
+            f"No se puede eliminar la mascota {mascota_id}: tiene atenciones registradas."
+        )
+
+
+class EspecieInvalida(ReglaIncumplida):
+    """La especie no está en la lista (ck_mascotas_especie)."""
+
+    def __init__(self, especie: str, permitidas: tuple[str, ...]):
+        super().__init__(
+            f"La especie '{especie}' no es válida; use una de: {', '.join(permitidas)}.",
+            campo="especie",
+        )
+
+
+class SexoInvalido(ReglaIncumplida):
+    """El sexo debe ser M o H (ck_mascotas_sexo)."""
+
+    def __init__(self, sexo: str):
+        super().__init__(f"El sexo '{sexo}' no es válido; use M o H.", campo="sexo")
+
+
+class FechaNacimientoFutura(ReglaIncumplida):
+    """La fecha de nacimiento no puede ser posterior a hoy."""
+
+    def __init__(self, fecha):
+        super().__init__(
+            f"La fecha de nacimiento {fecha:%d-%m-%Y} no puede ser futura.",
+            campo="fecha_nacimiento",
+        )
+
+
+
 # ---------------------------------------------------------------------
 # Servicios (Jhon)
 # ---------------------------------------------------------------------

@@ -20,9 +20,9 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 
 - **Qué hizo:** tablas duenos y mascotas con sus restricciones; datos de ejemplo realistas con RUT válidos.
 - **Archivos:** `backEnd/sql/01_crear_tablas.sql` (duenos, mascotas), `backEnd/sql/02_datos_ejemplo.sql`.
-- **Problema y solución:** Se soluciono el problema para llevar un registro de los dueños y las mascotas
+- **Problema y solución:** el diseño debía permitir registrar a cada dueño con sus mascotas sin datos repetidos ni inconsistentes. Se resolvió con restricciones nombradas en Oracle: `uq_duenos_rut` y `uq_duenos_email` (un dueño no se repite), `ck_duenos_email` (el email lleva `@`), `fk_mascotas_dueno` con índice `idx_mascotas_dueno` (toda mascota pertenece a un dueño existente), `ck_mascotas_especie` y `ck_mascotas_sexo` (solo valores permitidos). Los datos de ejemplo usan RUT válidos (dígito verificador correcto).
 - **Próxima semana:** capas completas de dueños y mascotas.
-- **Uso de IA:** _(qué se le preguntó a la IA y qué se cambió del resultado)_
+- **Uso de IA:** No se uso la IA.
 
 ### Jhon Quirino
 
@@ -101,6 +101,24 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 - **Próxima semana:** casos de uso `CrearAtencion` (con R1 y R2: solo servicios activos y total recalculado desde el detalle), `CambiarEstadoAtencion` (solo transiciones permitidas) y `EliminarAtencion` (solo `agendada`); cambiar `mascota_id` y `servicio_id` a `ForeignKey`.
 - **Uso de IA:** se usó Claude Code para generar las capas de atenciones a partir del diccionario de datos y para probarlas contra FreeSQL. _(completar: qué se revisó o cambió del resultado)_
 
+
+### Pablo Allendes
+
+- **Qué hizo:** capas completas de `duenos` y `mascotas`: entidades puras (con los valores permitidos de especie y sexo), puertos (ABC) con consultas por RUT, email y por (dueño, nombre) para el control de duplicados, excepciones de negocio, casos de uso (listar, obtener, crear, actualizar y eliminar de cada entidad) con RUT validado por módulo 11, email válido y único, nombre de mascota único por dueño, fecha de nacimiento no futura y la regla R3 (borrado protegido), modelos `managed = False` (`MascotaModel` con `ForeignKey` a `DuenoModel`), repositorios Oracle, mi sección de `di.py` y el comando `probar_duenos_mascotas`. Pruebas de los casos de uso con repositorios falsos en memoria.
+- **Archivos:** `veterinaria/domain/entities/dueno.py`, `domain/entities/mascota.py`, `domain/ports/dueno_repository.py`, `domain/ports/mascota_repository.py`, `application/exceptions.py` (sección Dueños y mascotas), `application/use_cases/duenos.py`, `application/use_cases/mascotas.py`, `infrastructure/models/dueno.py`, `infrastructure/models/mascota.py`, `infrastructure/models/__init__.py`, `infrastructure/repositories/dueno_repository.py`, `infrastructure/repositories/mascota_repository.py`, `infrastructure/di.py`, `management/commands/probar_duenos_mascotas.py`, `tests/test_duenos_mascotas.py`.
+- **Problema y solución:**
+    1. Para probar contra Oracle solo existía `.env.example` con los valores vacíos y no tenía mi `.env`. Se copió a `backEnd/.env`, se completaron `ORACLE_SERVICE`, `ORACLE_USER` y `ORACLE_PASSWORD` con los datos del panel de FreeSQL (puerto 2484, `ORACLE_PROTOCOL` vacío para que use `tcps`) y se verificó que `.env` no se suba a git.
+    2. La `DJANGO_SECRET_KEY` se genera con Django, así que hubo que activar primero el entorno virtual `.venv` (que está en la carpeta `huellitas`, fuera de `backEnd`) con `.venv\Scripts\activate`.
+    3. `probar_conexion` dio `Conexión OK`, pero mis cinco tablas estaban con 0 filas, así que la prueba no tenía datos (por ejemplo, Rocky para comprobar el borrado protegido). Se ejecutó `02_datos_ejemplo.sql` completo, como script y una sola vez, en mi esquema de FreeSQL.
+- **Decisiones de diseño:**
+    1. `EliminarDueno` recibe también el repositorio de mascotas y usa `existe_con_dueno()`: un dueño con mascotas no se elimina (R3).
+    2. `EliminarMascota` recibe el repositorio de atenciones y usa `existe_con_mascota()` de Javier: una mascota con atenciones no se elimina (R3).
+    3. `ActualizarDueno` y `ActualizarMascota` solo tratan RUT, email o nombre como duplicado si pertenecen a **otro** registro, así se puede guardar un registro con sus propios datos.
+    4. El RUT se normaliza al formato `12.345.678-5` antes de guardar, para que `uq_duenos_rut` funcione igual sin importar cómo lo escriba el usuario.
+- **Prueba:** `python -m unittest veterinaria.tests.test_duenos_mascotas -v` (33 pruebas, sin Django ni Oracle) y `python manage.py probar_duenos_mascotas` contra mi esquema de FreeSQL: crear, obtener, listar con filtros, actualizar, RUT y email duplicados, RUT y email inválidos, nombre de mascota repetido para el mismo dueño, dueño inexistente, especie y sexo inválidos, fecha de nacimiento futura, no encontrado, borrado protegido (un dueño con mascotas y Rocky, que tiene atenciones) y eliminar registros libres; todo dentro de una transacción que se revirtió. Captura: `docs/capturas/evidencia_duenos_mascotas_pablo.png`.
+- **Para mis compañeros:** `MascotaModel` ya existe, así que Javier puede cambiar `mascota_id` de `AtencionModel` a `ForeignKey(MascotaModel, db_column="mascota_id")`, y `ObtenerMascota` sirve para validar que la mascota exista al crear una atención.
+- **Próxima semana:** panel de administración, `crear_roles` y estructura del frontend.
+- **Uso de IA:** se usó Claude (chat) para generar el código de pruebas de dueños y mascotas en `backEnd/veterinaria/managament/commands/probar_duenos_mascotas.py` a petición de el usuario.
 
 ### Jhon Quirino
 
