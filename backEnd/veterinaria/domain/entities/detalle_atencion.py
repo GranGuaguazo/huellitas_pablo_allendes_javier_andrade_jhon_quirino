@@ -14,6 +14,7 @@ class DetalleAtencion:
     cantidad: int
     precio_unitario: Decimal
     atencion_id: int | None = None  # None hasta que la atención se guarda
+    servicio_nombre: str | None = None  # solo lectura: nombre para mostrar
 
     @property
     def subtotal(self) -> Decimal:

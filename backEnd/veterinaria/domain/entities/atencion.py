@@ -37,6 +37,7 @@ class Atencion:
     id: int | None = None
     fecha_creacion: datetime | None = None
     detalles: list[DetalleAtencion] = field(default_factory=list)
+    mascota_nombre: str | None = None  # solo lectura: nombre para mostrar
 
     def transiciones_permitidas(self) -> tuple[str, ...]:
         return TRANSICIONES.get(self.estado, ())

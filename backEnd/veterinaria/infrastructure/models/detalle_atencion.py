@@ -9,6 +9,7 @@ Modelo ORM de la tabla DETALLE_ATENCION.
 from django.db import models
 
 from veterinaria.infrastructure.models.atencion import AtencionModel
+from veterinaria.infrastructure.models.servicio import ServicioModel
 
 
 class DetalleAtencionModel(models.Model):
@@ -19,8 +20,14 @@ class DetalleAtencionModel(models.Model):
         db_column="atencion_id",
         related_name="detalles",
     )
-    # FK a SERVICIOS (fk_detalle_servicio). Entero hasta que exista ServicioModel.
-    servicio_id = models.IntegerField()
+    # FK a SERVICIOS (fk_detalle_servicio). DO_NOTHING: un servicio usado no
+    # se borra (borrado protegido en el caso de uso de servicios).
+    servicio = models.ForeignKey(
+        ServicioModel,
+        on_delete=models.DO_NOTHING,
+        db_column="servicio_id",
+        related_name="detalles_atencion",
+    )
     cantidad = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     subtotal = models.GeneratedField(

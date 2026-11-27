@@ -7,7 +7,11 @@ from veterinaria.infrastructure.repositories.atencion_repository import detalle_
 class OracleDetalleAtencionRepository(DetalleAtencionRepository):
 
     def listar_por_atencion(self, atencion_id):
-        qs = DetalleAtencionModel.objects.filter(atencion_id=atencion_id).order_by("servicio_id")
+        qs = (
+            DetalleAtencionModel.objects.filter(atencion_id=atencion_id)
+            .select_related("servicio")
+            .order_by("servicio_id")
+        )
         return [detalle_a_entidad(m) for m in qs]
 
     def existe_con_servicio(self, servicio_id):

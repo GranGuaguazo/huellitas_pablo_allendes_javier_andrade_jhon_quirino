@@ -7,14 +7,21 @@ from django.db import models
 from django.utils import timezone
 
 from veterinaria.domain.entities.atencion import ESTADO_INICIAL, ESTADOS
+from veterinaria.infrastructure.models.mascota import MascotaModel
 
 
 class AtencionModel(models.Model):
     id = models.AutoField(primary_key=True)  # NUMBER IDENTITY (NOCACHE)
-    # FK a MASCOTAS (fk_atenciones_mascota). Se declara como entero mientras
-    # no exista MascotaModel; al cambiarla a ForeignKey(db_column="mascota_id")
-    # el atributo mascota_id sigue existiendo y el repositorio no cambia.
-    mascota_id = models.IntegerField()
+    # FK a MASCOTAS (fk_atenciones_mascota). Con db_column el atributo
+    # mascota_id sigue existiendo y el repositorio lo usa igual.
+    # DO_NOTHING: el borrado protegido (R3) lo decide el caso de uso de
+    # mascotas, y la restricción final la mantiene Oracle.
+    mascota = models.ForeignKey(
+        MascotaModel,
+        on_delete=models.DO_NOTHING,
+        db_column="mascota_id",
+        related_name="atenciones",
+    )
     fecha = models.DateTimeField()
     motivo = models.CharField(max_length=200)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)

@@ -5,7 +5,8 @@ El dominio y los casos de uso dependen de esta interfaz, nunca de Oracle ni
 del ORM de Django. La implementación concreta está en infrastructure/.
 """
 from abc import ABC, abstractmethod
-from datetime import date
+from datetime import date, datetime
+from decimal import Decimal
 
 from veterinaria.domain.entities.atencion import Atencion
 
@@ -32,8 +33,10 @@ class AtencionRepository(ABC):
         """Guarda la atención y TODAS sus líneas en una sola transacción."""
 
     @abstractmethod
-    def actualizar_estado(self, atencion_id: int, nuevo_estado: str) -> Atencion | None:
-        """Cambia solo el estado. Devuelve None si la atención no existe."""
+    def actualizar_estado(
+        self, atencion_id: int, nuevo_estado: str, total: Decimal | None = None
+    ) -> Atencion | None:
+        """Cambia el estado (y el total, si se entrega). None si la atención no existe."""
 
     @abstractmethod
     def eliminar(self, atencion_id: int) -> bool:
@@ -43,9 +46,13 @@ class AtencionRepository(ABC):
 
     @abstractmethod
     def existe_agendada_mismo_dia(
-        self, mascota_id: int, dia: date, excluir_id: int | None = None
+        self, mascota_id: int, fecha: datetime, excluir_id: int | None = None
     ) -> bool:
-        """R1: ¿la mascota ya tiene una atención 'agendada' ese día (hora de Chile)?"""
+        """R1: ¿la mascota ya tiene una atención 'agendada' el mismo día que `fecha`?
+
+        El «día» se cuenta en hora de Chile; esa conversión es de la
+        infraestructura, por eso el caso de uso entrega la fecha completa.
+        """
 
     @abstractmethod
     def existe_con_mascota(self, mascota_id: int) -> bool:

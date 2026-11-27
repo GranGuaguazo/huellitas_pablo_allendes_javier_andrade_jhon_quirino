@@ -5,7 +5,13 @@ Es el ÚNICO lugar donde se eligen los repositorios concretos (Oracle).
 Las vistas piden aquí sus casos de uso ya armados. Para cambiar de base de
 datos bastaría con cambiar las clases que se instancian en este archivo.
 """
-from veterinaria.application.use_cases.atenciones import ListarAtenciones, ObtenerAtencion
+from veterinaria.application.use_cases.atenciones import (
+    CambiarEstadoAtencion,
+    CrearAtencion,
+    EliminarAtencion,
+    ListarAtenciones,
+    ObtenerAtencion,
+)
 from veterinaria.application.use_cases.duenos import (
     ActualizarDueno,
     CrearDueno,
@@ -47,6 +53,10 @@ mascota_repository = OracleMascotaRepository()
 
 listar_atenciones = ListarAtenciones(atencion_repository)
 obtener_atencion = ObtenerAtencion(atencion_repository)
+# R1 (mismo día) y R2 (servicios activos, total desde el detalle)
+crear_atencion = CrearAtencion(atencion_repository, mascota_repository, servicio_repository)
+cambiar_estado_atencion = CambiarEstadoAtencion(atencion_repository)
+eliminar_atencion = EliminarAtencion(atencion_repository)
 
 # --- Casos de uso: dueños y mascotas (Pablo) ------------------------------
 

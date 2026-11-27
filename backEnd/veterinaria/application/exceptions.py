@@ -103,6 +103,18 @@ class AtencionNoEliminable(ReglaIncumplida):
         )
 
 
+class EstadoAtencionDesconocido(ReglaIncumplida):
+    def __init__(self, estado: str, permitidos: tuple[str, ...]):
+        super().__init__(
+            f"El estado '{estado}' no existe; use uno de: {', '.join(permitidos)}.",
+            campo="estado",
+        )
+
+
+class DatoAtencionInvalido(ReglaIncumplida):
+    """Motivo vacío o muy largo, cantidad fuera de rango, fecha mal formada..."""
+
+
 # ---------------------------------------------------------------------
 # Dueños y mascotas (Pablo)
 # ---------------------------------------------------------------------
