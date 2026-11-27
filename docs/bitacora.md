@@ -35,7 +35,6 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 - **Próxima semana:** capas completas de servicios (entidad y puerto en `domain/`, casos de uso en `application/`, modelo ORM y repositorio en `infrastructure/`).
 - **Uso de IA:** Se usó Claude (chat) para entender los errores de `probar_conexion` y de git, y para ordenar los pasos de entrega. La IA detectó que los nombres de las variables del `.env` no coincidían con los de `.env.example`; la corrección se comprobó ejecutando `probar_conexion` hasta obtener `Conexión OK` y las 5 tablas con datos.
 
-
 - **Evidencia de conexión:** salida de `python manage.py probar_conexion` de cada integrante.
 
     Javier Andrade (15-11-2026):
@@ -79,11 +78,12 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
       ATENCIONES         5 filas
       DETALLE_ATENCION   8 filas
     ```
-     Capturas: `docs/capturas/evidencia_conexion_jhon.png` (salida de `probar_conexion`), `docs/capturas/evidencia_tablas_jhon.png` (`user_tables` con las 5 tablas) y `docs/capturas/evidencia_filas_jhon.png` (filas por tabla).
 
-- **Problema y solución:** _(completar)_
+    Capturas: `docs/capturas/evidencia_conexion_jhon.png` (salida de `probar_conexion`), `docs/capturas/evidencia_tablas_jhon.png` (`user_tables` con las 5 tablas) y `docs/capturas/evidencia_filas_jhon.png` (filas por tabla).
+
+- **Problema y solución:**
 - **Próxima semana:** capas completas de servicios.
-- **Uso de IA:** _(qué se le preguntó a la IA y qué se cambió del resultado)_
+- **Uso de IA:**
 
 ## Semana 2 · Capas hexagonales de las entidades maestras
 
@@ -99,8 +99,7 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 - **Prueba:** desde `manage.py shell` contra mi esquema: listar (con filtros por estado y texto), obtener (y el error `AtencionNoEncontrada` con un id inexistente), crear una atención con dos líneas, cambiar su estado y eliminarla, todo dentro de una transacción que se revirtió al final para no dejar datos de prueba. El `subtotal` lo devolvió Oracle y coincidió con `calcular_total()`.
 - **Para mis compañeros:** `AtencionRepository.existe_con_mascota()` (R3, borrado protegido de mascotas) y `DetalleAtencionRepository.existe_con_servicio()` (borrado protegido de servicios) ya están listos. En `application/exceptions.py` y `infrastructure/di.py` hay una sección para cada uno.
 - **Próxima semana:** casos de uso `CrearAtencion` (con R1 y R2: solo servicios activos y total recalculado desde el detalle), `CambiarEstadoAtencion` (solo transiciones permitidas) y `EliminarAtencion` (solo `agendada`); cambiar `mascota_id` y `servicio_id` a `ForeignKey`.
-- **Uso de IA:** se usó Claude Code para generar las capas de atenciones a partir del diccionario de datos y para probarlas contra FreeSQL. _(completar: qué se revisó o cambió del resultado)_
-
+- **Uso de IA:** se usó Claude Code para generar las capas de atenciones a partir del diccionario de datos y para probarlas contra FreeSQL.
 
 ### Pablo Allendes
 
@@ -133,4 +132,4 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 - **Prueba:** `python -m unittest veterinaria.tests.test_servicios -v` (14 pruebas, sin Django ni Oracle) y `python manage.py probar_servicios` contra mi esquema de FreeSQL: crear, obtener, listar con filtros, actualizar, duplicados, código inválido, precio negativo, no encontrado, borrado protegido (CON-01 está en atenciones) y eliminar uno libre; todo dentro de una transacción que se revirtió. Capturas: `docs/capturas/evidencia_servicios_oracle_jhon.png` y `docs/capturas/evidencia_pruebas_servicios_jhon.png`.
 - **Para mis compañeros:** `ServicioModel` ya existe, así que Javier puede cambiar `servicio_id` a `ForeignKey(db_column="servicio_id")`, y `ObtenerServicio` sirve para validar en R2 que el servicio esté activo.
 - **Próxima semana:** autenticación de la API (login, logout, `/api/auth/me/` con cookie HttpOnly y CSRF).
-- **Uso de IA:** se usó Claude (chat) para generar el código de servicios capa por capa y para diagnosticar los errores de ruta. Cada capa se comprobó con comandos en la terminal, con las 14 pruebas unitarias y con la prueba real contra Oracle. _(completar: qué revisaste o cambiaste del código generado)_
+- **Uso de IA:** se usó Claude (chat) para generar el código de servicios capa por capa y para diagnosticar los errores de ruta. Cada capa se comprobó con comandos en la terminal, con las 14 pruebas unitarias y con la prueba real contra Oracle.
