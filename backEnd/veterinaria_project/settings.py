@@ -24,13 +24,17 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Terceros (rest_framework, authtoken y corsheaders se agregan en la semana 3)
+    # Terceros
+    "rest_framework",
+    "rest_framework.authtoken",
+    "corsheaders",
     # Negocio
     "veterinaria",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -108,3 +112,27 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# --- API, cookies y CORS (semana 3) ---
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "False") == "True"
+
+AUTH_COOKIE_NAME = "auth_token"          # cookie con el token (HttpOnly)
+AUTH_COOKIE_MAX_AGE = 60 * 60 * 8        # 8 horas
+
+CORS_ALLOWED_ORIGINS = [FRONTEND_ORIGIN]
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [FRONTEND_ORIGIN]
+
+CSRF_COOKIE_HTTPONLY = False   # el frontend debe leerla para enviar X-CSRFToken
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = COOKIE_SECURE
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "veterinaria.api.authentication.CookieTokenAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
