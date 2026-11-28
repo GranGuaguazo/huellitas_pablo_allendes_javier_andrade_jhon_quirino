@@ -117,7 +117,7 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 - **Prueba:** `python -m unittest veterinaria.tests.test_duenos_mascotas -v` (33 pruebas, sin Django ni Oracle) y `python manage.py probar_duenos_mascotas` contra mi esquema de FreeSQL: crear, obtener, listar con filtros, actualizar, RUT y email duplicados, RUT y email inválidos, nombre de mascota repetido para el mismo dueño, dueño inexistente, especie y sexo inválidos, fecha de nacimiento futura, no encontrado, borrado protegido (un dueño con mascotas y Rocky, que tiene atenciones) y eliminar registros libres; todo dentro de una transacción que se revirtió. Captura: `docs/capturas/evidencia_duenos_mascotas_pablo.png`.
 - **Para mis compañeros:** `MascotaModel` ya existe, así que Javier puede cambiar `mascota_id` de `AtencionModel` a `ForeignKey(MascotaModel, db_column="mascota_id")`, y `ObtenerMascota` sirve para validar que la mascota exista al crear una atención.
 - **Próxima semana:** panel de administración, `crear_roles` y estructura del frontend.
-- **Uso de IA:** se usó Claude (chat) para generar el código de pruebas de dueños y mascotas en `backEnd/veterinaria/managament/commands/probar_duenos_mascotas.py` a petición de el usuario.
+- **Uso de IA:** se usó Claude (chat) para generar el código de pruebas de dueños y mascotas en `backEnd/veterinaria/managament/commands/probar_duenos_mascotas.py`.
 
 ### Jhon Quirino
 
@@ -152,6 +152,28 @@ Una entrada por semana y por integrante: qué hizo, en qué archivos, qué probl
 - **Próxima semana:** revisión de la Nota 1; después, serializers de entrada y salida de atenciones (detalle anidado), manejo uniforme de errores y paginación, y el endpoint de reporte (ingresos por servicio en un rango de fechas).
 - **Uso de IA:** se le pidió a Claude Code implementar mi parte de la semana 3 a partir del enunciado y de mi plan de la semana 2. Generó los casos de uso, las pruebas y el comando `probar_atenciones`, y los ejecutó contra FreeSQL. El cambio del puerto de R1 (recibir la fecha completa en vez del día) lo propuso la IA. También se le pidió revisar qué debía completar yo en la bitácora: indicó agregar la captura de evidencia y precisar este punto. No se modificó a mano el código generado; se comprobó ejecutando las pruebas y `probar_atenciones` en mi esquema.
 
+### Pablo Allendes
+
+* **Qué hizo:** panel de administración de Django (`admin.py`) con las 5 entidades de la clínica, y el comando `crear\\\_roles` que crea los grupos `veterinario` y `recepcion` con sus permisos y un usuario de prueba por rol.
+* **Archivos:** `veterinaria/admin.py`, `veterinaria/management/commands/crear\\\_roles.py`.
+* **Panel de administración:**
+
+  * `DuenoAdmin`, `MascotaAdmin`, `ServicioAdmin` y `AtencionAdmin`, con `list\\\_display`, `search\\\_fields` y `list\\\_filter` (por ejemplo, atenciones filtradas por `estado` y buscadas por `mascota\\\_\\\_nombre`).
+  * `detalle\\\_atencion` no se registra con su propio `ModelAdmin`: tiene clave primaria compuesta y Django lanza `ImproperlyConfigured`. Va como `TabularInline` de solo lectura dentro de la atención (`extra = 0`, `can\\\_delete = False`, sin permiso para agregar ni cambiar).
+  * El `total` de la atención es de solo lectura, porque se calcula desde el detalle (R2).
+  * El borrado protegido (R3) también rige en el panel: `has\\\_delete\\\_permission` no permite eliminar un dueño con mascotas, una mascota con atenciones, un servicio usado en una atención ni una atención que no esté `agendada`. Sin esto, Oracle respondería con `ORA-02292` y el panel mostraría un error 500.
+* **Roles (`crear\\\_roles`):**
+
+  * `veterinario`: todos los permisos de la app. `recepcion`: agregar, cambiar y ver atenciones, dueños y mascotas; en servicios solo ver (no cambia precios); sin borrar nada.
+  * A `recepcion` se le agregó además `view\\\_detalleatencionmodel`, para que pueda ver las líneas de la atención dentro del panel.
+  * Los códigos de permiso llevan el sufijo del modelo (`view\\\_serviciomodel`, `change\\\_atencionmodel`).
+  * Crea `veterinario1` y `recepcion1` con `is\\\_staff = True`; se puede ejecutar varias veces sin duplicar nada. El superusuario se crea con `createsuperuser`.
+* **Problema y solución:**
+
+  1. *(completar con un problema REAL que tuviste al ejecutar `migrate`, `crear\\\_roles` o al entrar al panel, y cómo lo resolviste)*
+* **Prueba:** *(completar: qué viste en `/admin/` con cada usuario; por ejemplo, que `recepcion1` no puede agregar servicios y que `veterinario1` sí. Agrega tus capturas en `docs/capturas/`)*
+* **Próxima semana:** *(completar según el reparto)*
+* **Uso de IA:** se usó Claude (chat) para generar `admin.py` y `crear\\\_roles.py`
 
 ### Jhon Quirino
 
